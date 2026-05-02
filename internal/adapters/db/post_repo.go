@@ -5,6 +5,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"time"
 )
 
 type PostRepo struct {
@@ -54,6 +55,38 @@ func (r *PostRepo) ListActive(ctx context.Context) ([]*domain.Post, error) {
         WHERE status = 'active' ORDER BY created_at DESC`
 
 	return r.queryPosts(ctx, query)
+}
+
+func (r *PostRepo) ListAll(ctx context.Context) ([]*domain.Post, error) {
+	query := `
+		SELECT id, title, content, image_url, user_name, avatar_url, session_id, status, created_at, last_comment_at
+        FROM posts ORDER BY created_at DESC`
+
+	return r.queryPosts(ctx, query)
+}
+
+func (r *PostRepo) Archive(ctx context.Context, id int64) error {
+	query := `
+		UPDATE posts SET status = 'archived' WHERE id = $1`
+
+	_, err := r.db.ExecContext(ctx, query, id)
+	if err != nil {
+		return fmt.Errorf("PostRepo.Archive: %w", err)
+	}
+
+	return nil
+}
+
+func (r *PostRepo) UpdateLastComment(ctx context.Context, postID int64, t time.Time) error {
+	query := `
+		UPDATE posts SET last_comment_at = $1 WHERE id = $2`
+
+	_, err := r.db.ExecContext(ctx, query, t, postID)
+	if err != nil {
+		return fmt.Errorf("PostRepo.UpdateLastComment: %w", err)
+	}
+
+	return nil
 }
 
 func (r *PostRepo) queryPosts(ctx context.Context, query string) ([]*domain.Post, error) {

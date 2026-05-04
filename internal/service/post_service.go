@@ -189,6 +189,57 @@ func (s *PostService) ListActive(ctx context.Context) ([]*domain.Post, error) {
 	return posts, nil
 }
 
+func (s *PostService) AddComment(ctx context.Context, postID int64, replyToID *int64, content string,
+	image io.Reader, filename, sessionID string) (*domain.Comment, error) {
+	p, err := s.posts.GetByID(ctx, postID)
+	if err != nil || p == nil {
+		return nil, fmt.Errorf("AddComment: post and found")
+	}
+
+	if p.Status != domain.StatusActive {
+		return nil, fmt.Errorf("AddComment: post is archived, comments are not allowed")
+	}
+
+	sess, err := s.sessions.GetByID(ctx, sessionID)
+	if err != nil || sess == nil {
+		return nil, fmt.Errorf("AddComment: session not found")
+	}
+
+	var imageURL string
+
+	if image != nil && filename != "" {
+		objectName := fmt.Sprintf("%d_%s", time.Now().UnixNano(), filename)
+
+		imageURL, err = s.images.UploadCommentImage(ctx, objectName, image)
+		if err != nil {
+			return nil, fmt.Errorf("AddComment upload: %w", err)
+		}
+	}
+
+	c := &domain.Comment{
+		PostID:    postID,
+		ReplyToID: replyToID,
+		Content:   content,
+		ImageURL:  imageURL,
+		UserName:  sess.UserName,
+		AvatarURL: sess.AvatarURL,
+		SessionID: sessionID,
+	}
+
+	created, err := s.comments.Create(ctx, c)
+	if err != nil {
+		return nil, fmt.Errorf("AddComment: %w", err)
+	}
+
+	if err := s.posts.UpdateLastComment(ctx, postID, created.CreatedAt); err != nil {
+		s.log.Warn("AddComment: failed to update last_comment_at", "post_id", postID, "err", err)
+	}
+
+	s.log.Info("comment added", "post_id", postID, "comment_id", created.ID)
+
+	return created, nil
+}
+
 func generateID() (string, error) {
 	b := make([]byte, 16)
 	if _, err := rand.Read(b); err != nil {

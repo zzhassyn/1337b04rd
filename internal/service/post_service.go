@@ -153,6 +153,42 @@ func (s *PostService) GetPost(ctx context.Context, id int64) (*domain.Post, []*d
 	return p, comments, nil
 }
 
+func (s *PostService) GetArchivedPost(ctx context.Context, id int64) (*domain.Post, []*domain.Comment, error) {
+	p, err := s.posts.GetByID(ctx, id)
+	if err != nil {
+		return nil, nil, fmt.Errorf("GetArchivedPost: %w", err)
+	}
+
+	if p == nil || p.Status != domain.StatusArchived {
+		return nil, nil, nil
+	}
+
+	comments, err := s.comments.ListByPostID(ctx, id)
+	if err != nil {
+		return nil, nil, fmt.Errorf("GetArchivedPost comments: %w", err)
+	}
+
+	return p, comments, nil
+}
+
+func (s *PostService) ListCatalog(ctx context.Context) ([]*domain.Post, error) {
+	posts, err := s.posts.ListActive(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("ListCatalog: %w", err)
+	}
+
+	return posts, nil
+}
+
+func (s *PostService) ListActive(ctx context.Context) ([]*domain.Post, error) {
+	posts, err := s.posts.ListAll(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("ListArchive: %w", err)
+	}
+
+	return posts, nil
+}
+
 func generateID() (string, error) {
 	b := make([]byte, 16)
 	if _, err := rand.Read(b); err != nil {

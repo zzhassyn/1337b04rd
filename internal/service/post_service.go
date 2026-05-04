@@ -6,6 +6,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
+	"io"
 	"log/slog"
 	"time"
 )
@@ -83,6 +84,73 @@ func (s *PostService) GetOrCreateSession(ctx context.Context, sessionID string) 
 	s.log.Info("session created", "id", newID, "avatar_id", avatarID, "name", name)
 
 	return sess, nil
+}
+
+func (s *PostService) UpdateUserName(ctx context.Context, sessionID, name string) error {
+	if err := s.sessions.UpdateName(ctx, sessionID, name); err != nil {
+		return fmt.Errorf("UpdateUserName: %w", err)
+	}
+
+	return nil
+}
+
+func (s *PostService) CreatePost(ctx context.Context, title, content, userName string, image io.Reader, filename, sessionID string) (*domain.Post, error) {
+	sess, err := s.sessions.GetByID(ctx, sessionID)
+	if err != nil || sess == nil {
+		return nil, fmt.Errorf("CreatePost: session not found: %w", err)
+	}
+
+	displayName := sess.UserName
+	if userName != "" {
+		displayName = userName
+	}
+
+	var imageURL string
+
+	if image != nil && filename != "" {
+		objectName := fmt.Sprintf("%d_%s", time.Now().UnixNano(), filename)
+
+		imageURL, err = s.images.UploadPostImage(ctx, objectName, image)
+		if err != nil {
+			return nil, fmt.Errorf("CreatePost upload: %w", err)
+		}
+	}
+
+	p := &domain.Post{
+		Title:     title,
+		Content:   content,
+		ImageURL:  imageURL,
+		UserName:  displayName,
+		AvatarURL: sess.AvatarURL,
+		SessionID: sessionID,
+	}
+
+	created, err := s.posts.Create(ctx, p)
+	if err != nil {
+		return nil, fmt.Errorf("CreatePost: %w", err)
+	}
+
+	s.log.Info("post created", "id", created.ID, "title", title)
+
+	return created, nil
+}
+
+func (s *PostService) GetPost(ctx context.Context, id int64) (*domain.Post, []*domain.Comment, error) {
+	p, err := s.posts.GetByID(ctx, id)
+	if err != nil {
+		return nil, nil, fmt.Errorf("GetPost: %w", err)
+	}
+
+	if p == nil {
+		return nil, nil, nil
+	}
+
+	comments, err := s.comments.ListByPostID(ctx, id)
+	if err != nil {
+		return nil, nil, fmt.Errorf("GetPost comments: %w", err)
+	}
+
+	return p, comments, nil
 }
 
 func generateID() (string, error) {

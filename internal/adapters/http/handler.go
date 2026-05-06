@@ -30,3 +30,14 @@ func (h *Handler) CatalogPage(w http.ResponseWriter, r *http.Request) {
 
 	h.renderer.Render(w, "catalog.html", posts)
 }
+
+func (h *Handler) ArchivePage(w http.ResponseWriter, r *http.Request) {
+	posts, err := h.svc.ListArchive(r.Context())
+	if err != nil {
+		h.log.Error("ArchivePage", "error", err)
+		h.renderer.RenderError(w, http.StatusInternalServerError, "Failed to load archive")
+		return
+	}
+
+	h.renderer.Render(w, "archive.html", posts)
+}

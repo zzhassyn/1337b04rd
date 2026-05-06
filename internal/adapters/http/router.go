@@ -15,6 +15,8 @@ func NewRouter(svc domain.PostService, renderer *Renderer, log *slog.Logger) htt
 	logMW := loggingMiddleware(log)
 
 	mux.Handle("Get /", sessionMW(http.HandlerFunc(h.CatalogPage)))
+	mux.Handle("Get /archive", sessionMW(http.HandlerFunc(h.ArchivePage)))
+	mux.Handle("Get /archive/", sessionMW(http.HandlerFunc(h.ArchivePostPage)))
 
 	return logMW(mux)
 }

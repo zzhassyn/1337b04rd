@@ -4,6 +4,8 @@ import (
 	"1337b04rd/internal/domain"
 	"log/slog"
 	"net/http"
+	"strconv"
+	"strings"
 )
 
 type Handler struct {
@@ -40,4 +42,36 @@ func (h *Handler) ArchivePage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	h.renderer.Render(w, "archive.html", posts)
+}
+
+func (h *Handler) ArchivePostPage(w http.ResponseWriter, r *http.Request) {
+	id, err := extractID(r.URL.Path, "/archive/")
+	if err != nil {
+		h.log.Error("ArchivePostPage", "error", err, "post_id", id)
+		h.renderer.RenderError(w, http.StatusNotFound, "Post not found")
+		return
+	}
+
+	post, comments, err := h.svc.GetArchivedPost(r.Context(), id)
+	if err != nil {
+		h.log.Error("ArchivePostPage", "error", err, "post_id", id)
+		h.renderer.RenderError(w, http.StatusInternalServerError, "Failed to load archived post")
+		return
+	}
+
+	if post == nil {
+		h.renderer.RenderError(w, http.StatusNotFound, "Archived post not found")
+		return
+	}
+
+	h.renderer.Render(w, "archive-post.html", map[string]any{
+		"Post":     post,
+		"Comments": comments,
+	})
+}
+
+func extractID(path, prefix string) (int64, error) {
+	idStr := strings.TrimPrefix(path, prefix)
+	part := strings.SplitN(idStr, "/", 2)[0]
+	return strconv.ParseInt(part, 10, 64)
 }

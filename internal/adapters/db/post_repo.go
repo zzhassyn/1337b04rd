@@ -1,11 +1,12 @@
 package db
 
 import (
-	"1337b04rd/internal/domain"
 	"context"
 	"database/sql"
 	"fmt"
 	"time"
+
+	"1337b04rd/internal/domain"
 )
 
 type PostRepo struct {

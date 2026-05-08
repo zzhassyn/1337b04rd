@@ -139,7 +139,8 @@ func (s *ImageStore) signRequest(req *http.Request, bucket, key string, body []b
 	}
 
 	canonicalRequest := strings.Join([]string{
-		req.Method, canonicalURI, "", canonicalHeaders, signedHeaders, bodyHash},
+		req.Method, canonicalURI, "", canonicalHeaders, signedHeaders, bodyHash,
+	},
 		"\n")
 
 	credentialScope := fmt.Sprintf("%s/%s/s3/aws_request", dateShort, s.cfg.Region)

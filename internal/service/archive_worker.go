@@ -1,10 +1,11 @@
 package service
 
 import (
-	"1337b04rd/internal/domain"
 	"context"
 	"log/slog"
 	"time"
+
+	"1337b04rd/internal/domain"
 )
 
 const (

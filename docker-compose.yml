@@ -1,4 +1,27 @@
 services:
+  app:
+    build: .
+    container_name: 1337b04rd-app
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=1337b04rd
+      - DB_SSLMODE=disable
+      - S3_ENDPOINT=s3:9000
+      - S3_REGION=us-east-1
+      - S3_ACCESS_KEY=minioadmin
+      - S3_SECRET_KEY=minioadmin
+      - PORT=8080
+    depends_on:
+      db:
+        condition: service_healthy
+      s3:
+        condition: service_healthy
+
   db:
     image: postgres:16-alpine
     container_name: 1337b04rd-db

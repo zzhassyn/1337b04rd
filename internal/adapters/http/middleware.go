@@ -1,11 +1,12 @@
 package http
 
 import (
-	"1337b04rd/internal/domain"
 	"context"
 	"log/slog"
 	"net/http"
 	"time"
+
+	"1337b04rd/internal/domain"
 )
 
 type contextKey string

@@ -1,10 +1,11 @@
 package http
 
 import (
-	"1337b04rd/internal/domain"
 	"log/slog"
 	"net/http"
 	"time"
+
+	"1337b04rd/internal/domain"
 )
 
 func NewRouter(svc domain.PostService, renderer *Renderer, log *slog.Logger) http.Handler {

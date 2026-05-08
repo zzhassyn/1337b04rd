@@ -1,11 +1,6 @@
 package app
 
 import (
-	"1337b04rd/internal/adapters/api"
-	dbadapter "1337b04rd/internal/adapters/db"
-	httphandler "1337b04rd/internal/adapters/http"
-	"1337b04rd/internal/adapters/s3"
-	"1337b04rd/internal/service"
 	"context"
 	"flag"
 	"fmt"
@@ -15,6 +10,12 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+
+	"1337b04rd/internal/adapters/api"
+	dbadapter "1337b04rd/internal/adapters/db"
+	httphandler "1337b04rd/internal/adapters/http"
+	"1337b04rd/internal/adapters/s3"
+	"1337b04rd/internal/service"
 )
 
 const (

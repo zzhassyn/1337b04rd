@@ -1,11 +1,12 @@
 package http
 
 import (
-	"1337b04rd/internal/domain"
 	"log/slog"
 	"net/http"
 	"strconv"
 	"strings"
+
+	"1337b04rd/internal/domain"
 )
 
 type Handler struct {

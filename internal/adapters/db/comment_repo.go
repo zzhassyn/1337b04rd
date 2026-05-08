@@ -1,10 +1,11 @@
 package db
 
 import (
-	"1337b04rd/internal/domain"
 	"context"
 	"database/sql"
 	"fmt"
+
+	"1337b04rd/internal/domain"
 )
 
 type CommentRepo struct {

@@ -1,7 +1,6 @@
 package service
 
 import (
-	"1337b04rd/internal/domain"
 	"context"
 	"crypto/rand"
 	"encoding/hex"
@@ -9,6 +8,8 @@ import (
 	"io"
 	"log/slog"
 	"time"
+
+	"1337b04rd/internal/domain"
 )
 
 const sessionCookieTTL = 7 * 24 * time.Hour
@@ -27,7 +28,8 @@ func New(posts domain.PostRepository,
 	sessions domain.SessionRepository,
 	images domain.ImageStore,
 	avatars domain.AvatarService,
-	log *slog.Logger) *PostService {
+	log *slog.Logger,
+) *PostService {
 	return &PostService{
 		posts:    posts,
 		comments: comments,
@@ -190,7 +192,8 @@ func (s *PostService) ListArchive(ctx context.Context) ([]*domain.Post, error) {
 }
 
 func (s *PostService) AddComment(ctx context.Context, postID int64, replyToID *int64, content string,
-	image io.Reader, filename, sessionID string) (*domain.Comment, error) {
+	image io.Reader, filename, sessionID string,
+) (*domain.Comment, error) {
 	p, err := s.posts.GetByID(ctx, postID)
 	if err != nil || p == nil {
 		return nil, fmt.Errorf("AddComment: post and found")

@@ -1,9 +1,10 @@
 package main
 
 import (
-	"1337b04rd/internal/app"
 	"fmt"
 	"os"
+
+	"1337b04rd/internal/app"
 )
 
 func main() {

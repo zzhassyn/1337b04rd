@@ -19,6 +19,8 @@ func NewRouter(svc domain.PostService, renderer *Renderer, log *slog.Logger) htt
 	mux.Handle("Get /archive/", sessionMW(http.HandlerFunc(h.ArchivePostPage)))
 	mux.Handle("Get /create-post", sessionMW(http.HandlerFunc(h.CreatePostPage)))
 	mux.Handle("POST /submit-post", sessionMW(http.HandlerFunc(h.SubmitPost)))
+	mux.Handle("GET /post/", sessionMW(http.HandlerFunc(routePostGet(h))))
+	mux.Handle("POST /post/", sessionMW(http.HandlerFunc(routePostComment(h))))
 
 	return logMW(mux)
 }
@@ -39,6 +41,18 @@ func loggingMiddleware(log *slog.Logger) func(http.Handler) http.Handler {
 				"remote_addr", r.RemoteAddr,
 			)
 		})
+	}
+}
+
+func routePostGet(h *Handler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		h.PostPage(w, r)
+	}
+}
+
+func routePostComment(h *Handler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		h.SubmitComment(w, r)
 	}
 }
 

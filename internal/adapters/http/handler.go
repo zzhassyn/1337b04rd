@@ -122,6 +122,98 @@ func (h *Handler) SubmitPost(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
+func (h *Handler) PostPage(w http.ResponseWriter, r *http.Request) {
+	id, err := extractID(r.URL.Path, "/post/")
+	if err != nil {
+		h.renderer.RenderError(w, http.StatusBadRequest, "Invalid post ID")
+
+		return
+	}
+
+	post, comments, err := h.svc.GetPost(r.Context(), id)
+	if err != nil {
+		h.log.Error("PostPage", "id", id, "err", err)
+		h.renderer.RenderError(w, http.StatusInternalServerError, "Failed to load post")
+
+		return
+	}
+
+	if post == nil {
+		h.renderer.RenderError(w, http.StatusNotFound, "Post not found")
+
+		return
+	}
+
+	sess := SessionFromContext(r.Context())
+
+	h.renderer.Render(w, "post.html", map[string]any{
+		"Post":     post,
+		"Comments": comments,
+		"Session":  sess,
+	})
+}
+
+func (h *Handler) SubmitComment(w http.ResponseWriter, r *http.Request) {
+	id, err := extractID(r.URL.Path, "/post/")
+	if err != nil {
+		h.renderer.RenderError(w, http.StatusBadRequest, "Invalid post ID")
+
+		return
+	}
+
+	if err := r.ParseMultipartForm(10 << 20); err != nil {
+		h.renderer.RenderError(w, http.StatusBadRequest, "Failed to parse form")
+
+		return
+	}
+
+	sess := SessionFromContext(r.Context())
+	if sess == nil {
+		h.renderer.RenderError(w, http.StatusUnauthorized, "No session")
+
+		return
+	}
+
+	content := strings.TrimSpace(r.FormValue("comment"))
+	if content == "" {
+		h.renderer.RenderError(w, http.StatusBadRequest, "Comment content is required")
+
+		return
+	}
+
+	var replyToID *int64
+
+	if replyStr := r.FormValue("reply_to"); replyStr != "" {
+		replyVal, err := strconv.ParseInt(replyStr, 10, 64)
+		if err == nil {
+			replyToID = &replyVal
+		}
+	}
+
+	var (
+		imageReader interface{ Read([]byte) (int, error) }
+		filename    string
+	)
+
+	file, header, err := r.FormFile("file")
+	if err == nil {
+		defer file.Close()
+
+		imageReader = file
+		filename = header.Filename
+	}
+
+	_, err = h.svc.AddComment(r.Context(), id, replyToID, content, imageReader, filename, sess.ID)
+	if err != nil {
+		h.log.Error("SubmitComment", "post_id", id, "err", err)
+		h.renderer.RenderError(w, http.StatusInternalServerError, "Failed to add comment")
+
+		return
+	}
+
+	http.Redirect(w, r, "/post/"+strconv.FormatInt(id, 10), http.StatusSeeOther)
+}
+
 func extractID(path, prefix string) (int64, error) {
 	idStr := strings.TrimPrefix(path, prefix)
 	part := strings.SplitN(idStr, "/", 2)[0]

@@ -214,6 +214,42 @@ func (h *Handler) SubmitComment(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/post/"+strconv.FormatInt(id, 10), http.StatusSeeOther)
 }
 
+func (h *Handler) UpdateName(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		h.renderer.RenderError(w, http.StatusMethodNotAllowed, "Method Not Allowed")
+
+		return
+	}
+
+	sess := SessionFromContext(r.Context())
+	if sess == nil {
+		h.renderer.RenderError(w, http.StatusUnauthorized, "No session")
+
+		return
+	}
+
+	name := strings.TrimSpace(r.FormValue("name"))
+	if name == "" {
+		h.renderer.RenderError(w, http.StatusBadRequest, "Name is required")
+
+		return
+	}
+
+	if err := h.svc.UpdateUserName(r.Context(), sess.ID, name); err != nil {
+		h.log.Error("UpdateName", "err", err)
+		h.renderer.RenderError(w, http.StatusInternalServerError, "Failed to update name")
+
+		return
+	}
+
+	referer := r.Header.Get("Referer")
+	if referer == "" {
+		referer = "/"
+	}
+
+	http.Redirect(w, r, referer, http.StatusSeeOther)
+}
+
 func extractID(path, prefix string) (int64, error) {
 	idStr := strings.TrimPrefix(path, prefix)
 	part := strings.SplitN(idStr, "/", 2)[0]

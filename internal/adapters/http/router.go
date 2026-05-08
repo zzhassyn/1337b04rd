@@ -21,6 +21,7 @@ func NewRouter(svc domain.PostService, renderer *Renderer, log *slog.Logger) htt
 	mux.Handle("POST /submit-post", sessionMW(http.HandlerFunc(h.SubmitPost)))
 	mux.Handle("GET /post/", sessionMW(http.HandlerFunc(routePostGet(h))))
 	mux.Handle("POST /post/", sessionMW(http.HandlerFunc(routePostComment(h))))
+	mux.Handle("POST /update-name", sessionMW(http.HandlerFunc(h.UpdateName)))
 
 	return logMW(mux)
 }

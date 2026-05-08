@@ -2,8 +2,8 @@
 
 > An anonymous imageboard backend engineered with architectural excellence
 
-![Go](https://img.shields.io/badge/Go-1.23+-blue?style=flat-square)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16+-336791?style=flat-square)
+[![Go](https://img.shields.io/badge/Go-1.23+-blue?style=flat-square)](https://go.dev/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16+-336791?style=flat-square)](https://www.postgresql.org/)
 
 1337b04rd is an anonymous imageboard backend written in Go. The system provides functionality for creating threads, posting comments, and attaching images, while automatically assigning pseudo-anonymous identities based on the Rick and Morty API. 
 

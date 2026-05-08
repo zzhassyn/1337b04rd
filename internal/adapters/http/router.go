@@ -17,6 +17,8 @@ func NewRouter(svc domain.PostService, renderer *Renderer, log *slog.Logger) htt
 	mux.Handle("Get /", sessionMW(http.HandlerFunc(h.CatalogPage)))
 	mux.Handle("Get /archive", sessionMW(http.HandlerFunc(h.ArchivePage)))
 	mux.Handle("Get /archive/", sessionMW(http.HandlerFunc(h.ArchivePostPage)))
+	mux.Handle("Get /create-post", sessionMW(http.HandlerFunc(h.CreatePostPage)))
+	mux.Handle("POST /submit-post", sessionMW(http.HandlerFunc(h.SubmitPost)))
 
 	return logMW(mux)
 }

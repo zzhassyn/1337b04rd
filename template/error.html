@@ -1,0 +1,42 @@
+{{define "error.html"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Error {{.Code}} — 1337b04rd</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #E6E9F5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .error-box {
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h1 { color: #c00; }
+        a { color: blue; text-decoration: none; margin: 0 10px; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+<div class="error-box">
+    <h1>Error {{.Code}}</h1>
+    <p>{{.Message}}</p>
+    <p>
+        <a href="javascript:history.back()">← Go Back</a> |
+        <a href="/">Return to Catalog</a>
+    </p>
+</div>
+</body>
+</html>
+{{end}}

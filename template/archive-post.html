@@ -1,0 +1,114 @@
+{{define "archive-post.html"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Post.Title}} (Archived) — 1337b04rd</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #E6E9F5;
+        }
+        header { text-align: center; }
+        main { margin: 10px; }
+        .post { background: white; border: 1px solid #ccc; border-radius: 5px; padding: 15px; margin-bottom: 20px; }
+        .post .meta {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.85em;
+            color: #555;
+            margin-bottom: 10px;
+        }
+        .post .meta img { border-radius: 50%; }
+        .post .content { display: flex; gap: 15px; }
+        .post .content img { max-width: 300px; height: auto; border-radius: 5px; }
+        .archived-notice {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 5px;
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+        }
+        .comment { border: 1px solid #ddd; border-radius: 5px; padding: 10px; margin-bottom: 10px; background: white; }
+        .comment .meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8em;
+            color: #555;
+            margin-bottom: 6px;
+        }
+        .comment .meta img { border-radius: 50%; }
+        .comment .reply-to { font-size: 0.8em; color: #888; margin-bottom: 4px; }
+        nav a { margin: 0 10px; text-decoration: none; color: blue; }
+        nav a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+<header>
+    <h1>{{.Post.Title}} <span style="font-size:0.7em;color:#888;">(Archived)</span></h1>
+    <nav>
+        [<a href="/archive">Back to Archive</a>] |
+        [<a href="/">Catalog</a>]
+    </nav>
+</header>
+<main>
+    <div class="archived-notice">
+        ⚠ This thread has been archived. You can view it, but new comments are not allowed.
+    </div>
+
+    <!-- Main Post -->
+    <div class="post">
+        <div class="meta">
+            <img src="{{.Post.AvatarURL}}" alt="avatar" width="50" height="50">
+            <b>{{.Post.UserName}}</b>
+            <span>{{.Post.CreatedAt.Format "2006-01-02 15:04"}}</span>
+            <span>#{{.Post.ID}}</span>
+        </div>
+        <div class="content">
+            {{if .Post.ImageURL}}
+            <a href="{{.Post.ImageURL}}" target="_blank">
+                <img src="{{.Post.ImageURL}}" alt="post image">
+            </a>
+            {{end}}
+            <div>
+                <h3>{{.Post.Title}}</h3>
+                <p>{{.Post.Content}}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Comments -->
+    <h2>Comments</h2>
+    <div class="comments">
+        {{range .Comments}}
+        <div class="comment">
+            <div class="meta">
+                <img src="{{.AvatarURL}}" alt="avatar" width="35" height="35">
+                <b>{{.UserName}}</b>
+                <span>{{.CreatedAt.Format "2006-01-02 15:04"}}</span>
+                <span>#{{.ID}}</span>
+            </div>
+            {{if .ReplyToID}}
+            <div class="reply-to">↩ Reply to #{{.ReplyToID}}</div>
+            {{end}}
+            <p>{{.Content}}</p>
+            {{if .ImageURL}}
+            <a href="{{.ImageURL}}" target="_blank">
+                <img src="{{.ImageURL}}" alt="comment image" style="max-width:150px;border-radius:5px;">
+            </a>
+            {{end}}
+        </div>
+        {{else}}
+        <p style="color:#888;">No comments available.</p>
+        {{end}}
+    </div>
+</main>
+</body>
+</html>
+{{end}}

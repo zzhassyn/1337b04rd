@@ -1,0 +1,76 @@
+{{define "create-post.html"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Post — 1337b04rd</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #E6E9F5;
+        }
+        header { text-align: center; }
+        main { display: flex; justify-content: center; padding: 20px; }
+        .postForm td { padding: 6px 10px; }
+        .postForm input[type=text],
+        .postForm textarea {
+            width: 300px;
+            box-sizing: border-box;
+        }
+        .postForm textarea { height: 100px; }
+        nav a { margin: 0 10px; text-decoration: none; color: blue; }
+        nav a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Create a New Post</h1>
+    <nav>
+        [<a href="/">Catalog</a>] |
+        [<a href="/archive">Archive</a>]
+    </nav>
+    <br>
+</header>
+<main>
+    <form action="/submit-post" method="POST" enctype="multipart/form-data">
+        <table class="postForm">
+            <tbody>
+            <tr>
+                <td>Name</td>
+                <td>
+                    <input name="name" type="text" placeholder="{{if .Session}}{{.Session.UserName}}{{else}}Anonymous{{end}}">
+                </td>
+            </tr>
+            <tr>
+                <td>Subject</td>
+                <td>
+                    <input name="subject" type="text" required placeholder="Thread title">
+                </td>
+            </tr>
+            <tr>
+                <td>Comment</td>
+                <td>
+                    <textarea name="comment" required placeholder="Write your post here..."></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td>File</td>
+                <td>
+                    <input name="file" type="file" accept="image/*">
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <input type="submit" value="Post">
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </form>
+</main>
+</body>
+</html>
+{{end}}

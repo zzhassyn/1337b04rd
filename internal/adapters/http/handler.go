@@ -70,6 +70,58 @@ func (h *Handler) ArchivePostPage(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func (h *Handler) CreatePostPage(w http.ResponseWriter, r *http.Request) {
+	sess := SessionFromContext(r.Context())
+	h.renderer.Render(w, "create-post.html", map[string]any{
+		"Session": sess,
+	})
+}
+
+func (h *Handler) SubmitPost(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseMultipartForm(10 << 20); err != nil {
+		h.log.Error("SubmitPost: parse form", "error", err)
+		h.renderer.RenderError(w, http.StatusBadRequest, "Invalid form data")
+		return
+	}
+
+	sess := SessionFromContext(r.Context())
+	if sess == nil {
+		h.renderer.RenderError(w, http.StatusUnauthorized, "No session")
+		return
+	}
+
+	title := strings.TrimSpace(r.FormValue("subject"))
+	content := strings.TrimSpace(r.FormValue("comment"))
+	username := strings.TrimSpace(r.FormValue("name"))
+
+	if title == "" || content == "" {
+		h.renderer.RenderError(w, http.StatusBadRequest, "All fields are required")
+		return
+	}
+
+	var (
+		imageReader interface{ Read([]byte) (int, error) }
+		filename    string
+	)
+
+	file, header, err := r.FormFile("file")
+	if err == nil {
+		defer file.Close()
+		imageReader = file
+		filename = header.Filename
+	}
+
+	post, err := h.svc.CreatePost(r.Context(), title, content, username, imageReader, filename, sess.ID)
+	if err != nil {
+		h.log.Error("SubmitPost: create post", "error", err)
+		h.renderer.RenderError(w, http.StatusInternalServerError, "Failed to create post")
+		return
+	}
+
+	h.log.Info("Post submitted", "post_id", post.ID)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
 func extractID(path, prefix string) (int64, error) {
 	idStr := strings.TrimPrefix(path, prefix)
 	part := strings.SplitN(idStr, "/", 2)[0]

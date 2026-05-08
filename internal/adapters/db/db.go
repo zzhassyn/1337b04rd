@@ -19,7 +19,7 @@ func Open(dsn string) (*sql.DB, error) {
 	return db, nil
 }
 
-func RingMigrations(db *sql.DB, sql string) error {
+func RunMigrations(db *sql.DB, sql string) error {
 	if _, err := db.Exec(sql); err != nil {
 		return fmt.Errorf("db.RunMigrations: %w", err)
 	}

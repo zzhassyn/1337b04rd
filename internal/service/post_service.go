@@ -180,7 +180,7 @@ func (s *PostService) ListCatalog(ctx context.Context) ([]*domain.Post, error) {
 	return posts, nil
 }
 
-func (s *PostService) ListActive(ctx context.Context) ([]*domain.Post, error) {
+func (s *PostService) ListArchive(ctx context.Context) ([]*domain.Post, error) {
 	posts, err := s.posts.ListAll(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("ListArchive: %w", err)

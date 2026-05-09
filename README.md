@@ -44,9 +44,9 @@ The application is configured via environment variables. If not provided, it fal
 
 | Variable | Default Value | Description |
 |---|---|---|
-| `DB_DSN` | `postgres://postgres:postgres@localhost:5432/1337b04rd?sslmode=disable` | PostgreSQL connection string |
-| `S3_ENDPOINT` | `http://localhost:9000` | S3 API endpoint |
-| `S3_PUBLIC_ENDPOINT` | `http://localhost:9000` | Public URL for accessing S3 objects |
+| `DB_DSN` | `postgres://postgres:postgres@127.0.0.1:5432/1337b04rd?sslmode=disable` | PostgreSQL connection string |
+| `S3_ENDPOINT` | `http://127.0.0.1:9000` | S3 API endpoint |
+| `S3_PUBLIC_ENDPOINT` | `http://127.0.0.1:9000` | Public URL for accessing S3 objects |
 | `S3_ACCESS_KEY` | `minioadmin` | S3 Access Key ID |
 | `S3_SECRET_KEY` | `minioadmin` | S3 Secret Access Key |
 | `S3_REGION` | `us-east-1` | S3 Region |
@@ -54,33 +54,42 @@ The application is configured via environment variables. If not provided, it fal
 
 ## Deployment and Usage
 
-### 1. Database and Storage Setup
+The easiest way to run the entire stack (Application, PostgreSQL, and MinIO) is using Docker Compose.
 
-For local development, it is recommended to use Docker Compose to spin up the required infrastructure:
+### 1. Running the Full Stack via Docker
+
+Start all services in the background:
 
 ```sh
-docker-compose up -d
+docker-compose up --build -d
 ```
 
-This will start a PostgreSQL instance on port 5432 and a MinIO instance on ports 9000 (API) and 9001 (Web UI). Database migrations are applied automatically upon application startup.
+This command will:
+1. Build the Go application using the multi-stage Dockerfile.
+2. Start the PostgreSQL database and MinIO S3 storage.
+3. Automatically apply database migrations upon application startup.
+4. Expose the web application on `http://localhost:8080`.
 
-### 2. Building the Application
+You can view the application logs by running:
 
-Compile the binary using the Go toolchain:
+```sh
+docker-compose logs -f app
+```
+
+### 2. Local Development (Alternative)
+
+If you prefer to run the Go application natively while keeping the infrastructure in Docker, you can start just the dependencies:
+
+```sh
+docker-compose up -d db s3
+```
+
+Then, compile and run the binary using the Go toolchain:
 
 ```sh
 go build -o 1337b04rd ./cmd/1337b04rd
-```
-
-### 3. Running the Server
-
-Start the application specifying the desired port:
-
-```sh
 ./1337b04rd --port 8080
 ```
-
-The server will be accessible at `http://localhost:8080`.
 
 ## Contact & Links
 

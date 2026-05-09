@@ -15,10 +15,10 @@ func NewRouter(svc domain.PostService, renderer *Renderer, log *slog.Logger) htt
 	sessionMW := SessionMiddleware(svc, log)
 	logMW := loggingMiddleware(log)
 
-	mux.Handle("Get /", sessionMW(http.HandlerFunc(h.CatalogPage)))
-	mux.Handle("Get /archive", sessionMW(http.HandlerFunc(h.ArchivePage)))
-	mux.Handle("Get /archive/", sessionMW(http.HandlerFunc(h.ArchivePostPage)))
-	mux.Handle("Get /create-post", sessionMW(http.HandlerFunc(h.CreatePostPage)))
+	mux.Handle("GET /", sessionMW(http.HandlerFunc(h.CatalogPage)))
+	mux.Handle("GET /archive", sessionMW(http.HandlerFunc(h.ArchivePage)))
+	mux.Handle("GET /archive/", sessionMW(http.HandlerFunc(h.ArchivePostPage)))
+	mux.Handle("GET /create-post", sessionMW(http.HandlerFunc(h.CreatePostPage)))
 	mux.Handle("POST /submit-post", sessionMW(http.HandlerFunc(h.SubmitPost)))
 	mux.Handle("GET /post/", sessionMW(http.HandlerFunc(routePostGet(h))))
 	mux.Handle("POST /post/", sessionMW(http.HandlerFunc(routePostComment(h))))
@@ -61,4 +61,9 @@ func routePostComment(h *Handler) http.HandlerFunc {
 type responseWriter struct {
 	http.ResponseWriter
 	status int
+}
+
+func (rw *responseWriter) WriteHeader(statusCode int) {
+	rw.status = statusCode
+	rw.ResponseWriter.WriteHeader(statusCode)
 }

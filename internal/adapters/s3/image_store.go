@@ -130,7 +130,7 @@ func (s *ImageStore) signRequest(req *http.Request, bucket, key string, body []b
 	bodyHash := hashSHA256(body)
 	req.Header.Set("x-amz-content-sha256", bodyHash)
 
-	canonicalHeaders := fmt.Sprintf("host:%s\nx-amz-content-sha256:%sx-amz-date:%s\n", req.URL.Host, bodyHash, dateLong)
+	canonicalHeaders := fmt.Sprintf("host:%s\nx-amz-content-sha256:%s\nx-amz-date:%s\n", req.URL.Host, bodyHash, dateLong)
 	signedHeaders := "host;x-amz-content-sha256;x-amz-date"
 
 	canonicalURI := req.URL.Path
@@ -143,7 +143,7 @@ func (s *ImageStore) signRequest(req *http.Request, bucket, key string, body []b
 	},
 		"\n")
 
-	credentialScope := fmt.Sprintf("%s/%s/s3/aws_request", dateShort, s.cfg.Region)
+	credentialScope := fmt.Sprintf("%s/%s/s3/aws4_request", dateShort, s.cfg.Region)
 	stringToSign := strings.Join([]string{"AWS4-HMAC-SHA256", dateLong, credentialScope, hashSHA256([]byte(canonicalRequest))},
 		"\n")
 

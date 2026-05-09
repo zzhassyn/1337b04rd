@@ -53,9 +53,9 @@ func (r *PostRepo) ListActive(ctx context.Context) ([]*domain.Post, error) {
 	query := `
 		SELECT id, title, content, image_url, user_name, avatar_url, session_id, status, created_at, last_comment_at
         FROM posts
-        WHERE status = 'active' ORDER BY created_at DESC`
+        WHERE status = $1 ORDER BY created_at DESC`
 
-	return r.queryPosts(ctx, query)
+	return r.queryPosts(ctx, query, domain.StatusActive)
 }
 
 func (r *PostRepo) ListAll(ctx context.Context) ([]*domain.Post, error) {
@@ -90,8 +90,8 @@ func (r *PostRepo) UpdateLastComment(ctx context.Context, postID int64, t time.T
 	return nil
 }
 
-func (r *PostRepo) queryPosts(ctx context.Context, query string) ([]*domain.Post, error) {
-	rows, err := r.db.QueryContext(ctx, query, domain.StatusActive)
+func (r *PostRepo) queryPosts(ctx context.Context, query string, args ...any) ([]*domain.Post, error) {
+	rows, err := r.db.QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("PostRepo.queryPosts: %w", err)
 	}
